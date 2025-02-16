@@ -1,11 +1,8 @@
 package models
 
 type Post struct {
-    ID       string `gorm:"primary_key"`
-    Title    string
-    Content  string
-    Author   string
-    Date     string
-    FileName *string
-    FileUrl  *string
+	ID      uint `gorm:"primary_key"`
+	GroupID string
+	Group   Group `gorm:"foreignKey:GroupID"`
+	Content string
 }
