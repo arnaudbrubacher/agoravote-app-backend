@@ -8,11 +8,11 @@ import (
 )
 
 type PostController struct {
-	postService services.PostService
+	PostService services.PostService
 }
 
-func NewPostController(postService services.PostService) *PostController {
-	return &PostController{postService: postService}
+func NewPostController(service services.PostService) *PostController {
+	return &PostController{PostService: service}
 }
 
 func (pc *PostController) CreatePost(c *gin.Context) {
@@ -21,15 +21,17 @@ func (pc *PostController) CreatePost(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := pc.postService.CreatePost(&post); err != nil {
+
+	if err := pc.PostService.CreatePost(post); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
 	c.JSON(http.StatusCreated, post)
 }
 
-func (pc *PostController) GetPosts(c *gin.Context) {
-	posts, err := pc.postService.FetchPosts()
+func (pc *PostController) FetchPosts(c *gin.Context) {
+	posts, err := pc.PostService.FetchPosts()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

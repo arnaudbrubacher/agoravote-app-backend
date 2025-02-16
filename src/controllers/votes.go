@@ -3,6 +3,7 @@ package controllers
 import (
 	"net/http"
 	"github.com/gin-gonic/gin"
+	"agoravote-app-backend/src/models"
 	"agoravote-app-backend/src/services"
 )
 
@@ -10,21 +11,28 @@ type VoteController struct {
 	VoteService services.VoteService
 }
 
-func (vc *VoteController) CastVote(c *gin.Context) {
-	var vote services.Vote
+func NewVoteController(service services.VoteService) *VoteController {
+	return &VoteController{VoteService: service}
+}
+
+func (vc *VoteController) CreateVote(c *gin.Context) {
+	var vote models.Vote
 	if err := c.ShouldBindJSON(&vote); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := vc.VoteService.CastVote(vote); err != nil {
+
+	if err := vc.VoteService.CreateVote(vote); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Vote cast successfully"})
+
+	c.JSON(http.StatusCreated, vote)
 }
 
-func (vc *VoteController) GetVotes(c *gin.Context) {
-	votes, err := vc.VoteService.FetchVotes()
+func (vc *VoteController) FetchVotes(c *gin.Context) {
+	groupID := c.Param("group_id")
+	votes, err := vc.VoteService.FetchVotes(groupID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

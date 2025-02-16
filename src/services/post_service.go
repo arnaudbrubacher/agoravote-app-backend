@@ -1,38 +1,27 @@
 package services
 
 import (
-	"errors"
-	"sync"
-
-	"agoravote-app-backend/src/models"
+    "agoravote-app-backend/src/models"
+    "agoravote-app-backend/src/database"
 )
 
-type PostService struct {
-	mu    sync.Mutex
-	posts []models.Post
+type PostService struct{}
+
+func NewPostService() PostService {
+    return PostService{}
 }
 
-func NewPostService() *PostService {
-	return &PostService{
-		posts: []models.Post{},
-	}
+func (ps *PostService) CreatePost(post models.Post) error {
+    if err := database.DB.Create(&post).Error; err != nil {
+        return err
+    }
+    return nil
 }
 
-func (s *PostService) CreatePost(post models.Post) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	if post.Title == "" || post.Content == "" {
-		return errors.New("post title and content cannot be empty")
-	}
-
-	s.posts = append(s.posts, post)
-	return nil
-}
-
-func (s *PostService) FetchPosts() []models.Post {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	return s.posts
+func (ps *PostService) FetchPosts() ([]models.Post, error) {
+    var posts []models.Post
+    if err := database.DB.Find(&posts).Error; err != nil {
+        return nil, err
+    }
+    return posts, nil
 }

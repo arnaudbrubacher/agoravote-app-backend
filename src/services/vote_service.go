@@ -1,49 +1,27 @@
 package services
 
 import (
-	"errors"
-	"sync"
+    "agoravote-app-backend/src/models"
+    "agoravote-app-backend/src/database"
 )
 
-type Vote struct {
-	ID     string
-	UserID string
-	PostID string
-	Value  int // 1 for upvote, -1 for downvote
+type VoteService struct{}
+
+func NewVoteService() VoteService {
+    return VoteService{}
 }
 
-type VoteService struct {
-	votes map[string]Vote
-	mu    sync.Mutex
+func (vs *VoteService) CreateVote(vote models.Vote) error {
+    if err := database.DB.Create(&vote).Error; err != nil {
+        return err
+    }
+    return nil
 }
 
-func NewVoteService() *VoteService {
-	return &VoteService{
-		votes: make(map[string]Vote),
-	}
-}
-
-func (vs *VoteService) CastVote(vote Vote) error {
-	vs.mu.Lock()
-	defer vs.mu.Unlock()
-
-	if _, exists := vs.votes[vote.ID]; exists {
-		return errors.New("vote already exists")
-	}
-
-	vs.votes[vote.ID] = vote
-	return nil
-}
-
-func (vs *VoteService) FetchVotes(postID string) []Vote {
-	vs.mu.Lock()
-	defer vs.mu.Unlock()
-
-	var postVotes []Vote
-	for _, vote := range vs.votes {
-		if vote.PostID == postID {
-			postVotes = append(postVotes, vote)
-		}
-	}
-	return postVotes
+func (vs *VoteService) FetchVotes(groupID string) ([]models.Vote, error) {
+    var votes []models.Vote
+    if err := database.DB.Where("group_id = ?", groupID).Find(&votes).Error; err != nil {
+        return nil, err
+    }
+    return votes, nil
 }

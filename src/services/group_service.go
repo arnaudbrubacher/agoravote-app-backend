@@ -21,8 +21,16 @@ func (gs *GroupService) CreateGroup(group models.Group) error {
 
 func (gs *GroupService) GetGroupByID(groupID string) (models.Group, error) {
 	var group models.Group
-	if err := database.DB.First(&group, "id = ?", groupID).Error; err != nil {
+	if err := database.DB.Preload("Members").Preload("Votes").Preload("Posts").First(&group, "id = ?", groupID).Error; err != nil {
 		return group, errors.New("group not found")
 	}
 	return group, nil
+}
+
+func (gs *GroupService) FetchGroups() ([]models.Group, error) {
+	var groups []models.Group
+	if err := database.DB.Find(&groups).Error; err != nil {
+		return nil, err
+	}
+	return groups, nil
 }

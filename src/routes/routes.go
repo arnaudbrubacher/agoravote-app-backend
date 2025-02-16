@@ -13,15 +13,24 @@ func SetupRoutes() *gin.Engine {
     userController := controllers.UserController{UserService: userService}
 
     groupService := services.NewGroupService()
-    groupController := controllers.GroupController{GroupService: groupService}
+    groupController := controllers.NewGroupController(groupService)
+
+    postService := services.NewPostService()
+    postController := controllers.NewPostController(postService)
+
+    voteService := services.NewVoteService()
+    voteController := controllers.NewVoteController(voteService)
 
     router.POST("/users", userController.CreateUser)
     router.POST("/users/login", userController.UserLogin)
     router.GET("/users/:id", userController.GetUser)
     router.POST("/groups", groupController.CreateGroup)
     router.GET("/groups/:id", groupController.GetGroup)
-    router.POST("/votes", controllers.CreateVote)
-    router.GET("/votes/:id", controllers.GetVote)
+    router.GET("/groups", groupController.GetGroups)
+    router.POST("/posts", postController.CreatePost)
+    router.GET("/posts", postController.FetchPosts)
+    router.POST("/votes", voteController.CreateVote)
+    router.GET("/votes/:group_id", voteController.FetchVotes)
 
     return router
 }
