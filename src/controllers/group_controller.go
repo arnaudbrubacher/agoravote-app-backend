@@ -13,11 +13,7 @@ type GroupController struct {
 	GroupService services.GroupService
 }
 
-func NewGroupController(service services.GroupService) *GroupController {
-	return &GroupController{GroupService: service}
-}
-
-func (gc *GroupController) CreateGroup(c *gin.Context) {
+func (ctrl GroupController) CreateGroup(c *gin.Context) {
 	var group models.Group
 	if err := c.ShouldBindJSON(&group); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

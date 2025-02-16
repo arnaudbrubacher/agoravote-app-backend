@@ -1,7 +1,7 @@
 package database
 
 import (
-	"agoravote-app-backend/src/models" // Update with your actual project path
+	"agoravote-app-backend/src/models"
 	"log"
 	"os"
 
@@ -37,26 +37,4 @@ func ConnectDB() {
 	log.Println("Successfully connected to the database")
 
 	DB = db
-
-	// Populate the database with sample data
-	populateGroups()
-}
-
-func populateGroups() {
-	log.Println("Populating groups with sample data")
-
-	group := models.Group{
-		ID:          "1",
-		Name:        "Group 1",
-		Description: "Description for Group 1",
-		IsPrivate:   false,
-		LastActive:  "2025-02-16",
-	}
-
-	log.Printf("Inserting group: %s", group.Name)
-	if err := DB.FirstOrCreate(&group, models.Group{ID: group.ID}).Error; err != nil {
-		log.Printf("Failed to insert group %s: %v", group.Name, err)
-	} else {
-		log.Printf("Successfully inserted group %s", group.Name)
-	}
 }

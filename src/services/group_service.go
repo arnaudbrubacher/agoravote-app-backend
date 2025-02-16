@@ -1,9 +1,8 @@
 package services
 
 import (
-	"errors"
-	"agoravote-app-backend/src/models"
 	"agoravote-app-backend/src/database"
+	"agoravote-app-backend/src/models"
 )
 
 type GroupService struct{}
@@ -19,15 +18,15 @@ func (gs *GroupService) CreateGroup(group models.Group) error {
 	return nil
 }
 
-func (gs *GroupService) GetGroupByID(groupID string) (models.Group, error) {
+func (s GroupService) GetGroupByID(id string) (*models.Group, error) {
 	var group models.Group
-	if err := database.DB.Preload("Members").Preload("Votes").Preload("Posts").First(&group, "id = ?", groupID).Error; err != nil {
-		return group, errors.New("group not found")
+	if err := database.DB.First(&group, "id = ?", id).Error; err != nil {
+		return nil, err
 	}
-	return group, nil
+	return &group, nil
 }
 
-func (gs *GroupService) FetchGroups() ([]models.Group, error) {
+func (s GroupService) FetchGroups() ([]models.Group, error) {
 	var groups []models.Group
 	if err := database.DB.Find(&groups).Error; err != nil {
 		return nil, err
