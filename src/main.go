@@ -1,11 +1,14 @@
 package main
 
 import (
+	"agoravote-app-backend/src/controllers"
 	"agoravote-app-backend/src/database"
+	"agoravote-app-backend/src/middleware"
 	"agoravote-app-backend/src/routes"
 	"log"
 
 	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
@@ -22,14 +25,26 @@ func main() {
 	// Add CORS middleware
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
 
+	r := gin.Default()
+
+	r.POST("/login", controllers.Login)
+	r.POST("/signup", controllers.Signup)
+
+	protected := r.Group("/")
+	protected.Use(middleware.AuthMiddleware())
+	{
+		protected.GET("/groups", controllers.GetGroups)
+		protected.POST("/groups", controllers.CreateGroup)
+	}
+
 	log.Println("Starting server on :8080")
-	if err := router.Run(":8080"); err != nil {
+	if err := r.Run(":8080"); err != nil {
 		log.Fatal(err)
 	}
 }
