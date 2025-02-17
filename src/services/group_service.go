@@ -7,6 +7,10 @@ import (
 
 type GroupService struct{}
 
+func (s GroupService) CreateGroup(group *models.Group) error {
+	return database.DB.Create(group).Error
+}
+
 func (s GroupService) GetGroupByID(id string) (*models.Group, error) {
 	var group models.Group
 	if err := database.DB.First(&group, "id = ?", id).Error; err != nil {

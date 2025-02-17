@@ -1,15 +1,8 @@
 package models
 
 type Vote struct {
-	ID      uint `gorm:"primary_key"`
-	GroupID string
-	Group   Group `gorm:"foreignKey:GroupID"`
-	Value   string
-}
-
-type WriteInResponse struct {
-	ID     string `gorm:"primary_key"`
-	VoteID string
-	Text   string
-	Count  int
+	ID        string `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	GroupID   string `gorm:"type:uuid;not null"`
+	UserID    string `gorm:"not null"`
+	CreatedAt string `gorm:"not null"`
 }

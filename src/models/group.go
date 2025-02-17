@@ -1,13 +1,20 @@
 package models
 
+import (
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+)
+
 type Group struct {
-	ID          string `gorm:"primary_key"`
-	Name        string
+	ID          string `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
+	Name        string `gorm:"not null"`
 	Description string
-	Picture     *string
-	IsPrivate   bool
-	Members     []User `gorm:"many2many:group_members;"`
-	Votes       []Vote `gorm:"foreignKey:GroupID"`
-	Posts       []Post `gorm:"foreignKey:GroupID"`
-	LastActive  string
+	Picture     string
+	IsPrivate   bool   `gorm:"not null"`
+	LastActive  string `gorm:"not null"`
+}
+
+func (group *Group) BeforeCreate(tx *gorm.DB) (err error) {
+	group.ID = uuid.New().String()
+	return
 }
