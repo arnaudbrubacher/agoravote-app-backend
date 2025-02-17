@@ -19,9 +19,9 @@ func ConnectDB() {
 		log.Fatal("Failed to connect to database:", err)
 	}
 
-	// Auto-migrate the Group, Vote, and Post models
-	log.Println("Auto-migrating the Group, Vote, and Post models")
-	db.AutoMigrate(&models.Group{}, &models.Vote{}, &models.Post{})
+	// Auto-migrate the Group, Vote, Post, and GroupMember models
+	log.Println("Auto-migrating the Group, Vote, Post, and GroupMember models")
+	db.AutoMigrate(&models.Group{}, &models.Vote{}, &models.Post{}, &models.GroupMember{})
 
 	// Verify the connection by running a simple query
 	sqlDB, err := db.DB()

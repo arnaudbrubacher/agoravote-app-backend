@@ -28,9 +28,13 @@ func (s GroupService) FetchGroups() ([]models.Group, error) {
 }
 
 func GetAllGroups(groups *[]models.Group) error {
-	return database.DB.Find(groups).Error
+	return database.DB.Preload("Members").Find(groups).Error
 }
 
 func CreateGroup(group *models.Group) error {
 	return database.DB.Create(group).Error
+}
+
+func CreateGroupMember(groupMember *models.GroupMember) error {
+	return database.DB.Create(groupMember).Error
 }

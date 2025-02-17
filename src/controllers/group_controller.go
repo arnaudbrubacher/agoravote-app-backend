@@ -4,6 +4,7 @@ import (
 	"agoravote-app-backend/src/models"
 	"agoravote-app-backend/src/services"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -62,7 +63,20 @@ func CreateGroup(c *gin.Context) {
 		return
 	}
 
+	userID := c.GetString("user_id") // Get the user ID from the context
+
 	if err := services.CreateGroup(&group); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Add the user who created the group as a member
+	groupMember := models.GroupMember{
+		GroupID:   group.ID,
+		UserID:    userID,
+		CreatedAt: time.Now(), // Use time.Now() to get the current time as a time.Time value
+	}
+	if err := services.CreateGroupMember(&groupMember); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

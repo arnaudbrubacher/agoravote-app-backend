@@ -10,8 +10,9 @@ type Group struct {
 	Name        string `gorm:"not null"`
 	Description string
 	Picture     string
-	IsPrivate   bool   `gorm:"not null"`
-	LastActive  string `gorm:"not null"`
+	IsPrivate   bool          `gorm:"not null"`
+	LastActive  string        `gorm:"not null"`
+	Members     []GroupMember `gorm:"foreignKey:GroupID"`
 }
 
 func (group *Group) BeforeCreate(tx *gorm.DB) (err error) {
