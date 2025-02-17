@@ -26,3 +26,11 @@ func (s GroupService) FetchGroups() ([]models.Group, error) {
 	}
 	return groups, nil
 }
+
+func GetAllGroups(groups *[]models.Group) error {
+	return database.DB.Find(groups).Error
+}
+
+func CreateGroup(group *models.Group) error {
+	return database.DB.Create(group).Error
+}

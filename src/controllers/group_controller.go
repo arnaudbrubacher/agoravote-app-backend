@@ -45,3 +45,27 @@ func (gc *GroupController) GetGroups(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, groups)
 }
+
+func GetGroups(c *gin.Context) {
+	var groups []models.Group
+	if err := services.GetAllGroups(&groups); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, groups)
+}
+
+func CreateGroup(c *gin.Context) {
+	var group models.Group
+	if err := c.ShouldBindJSON(&group); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := services.CreateGroup(&group); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, group)
+}

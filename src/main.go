@@ -4,7 +4,6 @@ import (
 	"agoravote-app-backend/src/controllers"
 	"agoravote-app-backend/src/database"
 	"agoravote-app-backend/src/middleware"
-	"agoravote-app-backend/src/routes"
 	"log"
 
 	"github.com/gin-contrib/cors"
@@ -20,18 +19,16 @@ func main() {
 	}
 
 	database.ConnectDB() // Ensure the database connection is established
-	router := routes.SetupRoutes()
 
 	// Add CORS middleware
-	router.Use(cors.New(cors.Config{
+	r := gin.Default()
+	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
 		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
-
-	r := gin.Default()
 
 	r.POST("/login", controllers.Login)
 	r.POST("/signup", controllers.Signup)
