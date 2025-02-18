@@ -24,14 +24,14 @@ func (pc *PostController) CreatePost(c *gin.Context) {
 		return
 	}
 
-	post.CreatedAt = time.Now()
+	post.CreatedAt = time.Now().Format(time.RFC3339)
 
-	if err := pc.PostService.CreatePost(post); err != nil {
+	if err := services.CreatePost(&post); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusCreated, post)
+	c.JSON(http.StatusOK, post)
 }
 
 func (pc *PostController) FetchPosts(c *gin.Context) {
@@ -41,4 +41,21 @@ func (pc *PostController) FetchPosts(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, posts)
+}
+
+func CreatePost(c *gin.Context) {
+	var post models.Post
+	if err := c.ShouldBindJSON(&post); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	post.CreatedAt = time.Now().Format(time.RFC3339)
+
+	if err := services.CreatePost(&post); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, post)
 }

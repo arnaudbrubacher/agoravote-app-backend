@@ -15,6 +15,10 @@ func (ps *PostService) CreatePost(post models.Post) error {
 	return database.DB.Create(&post).Error
 }
 
+func CreatePost(post *models.Post) error {
+	return database.DB.Create(post).Error
+}
+
 func (ps *PostService) FetchPosts() ([]models.Post, error) {
 	var posts []models.Post
 	if err := database.DB.Find(&posts).Error; err != nil {

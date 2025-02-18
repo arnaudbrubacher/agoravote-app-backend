@@ -10,7 +10,7 @@ import (
 func SetupRoutes() *gin.Engine {
 	router := gin.Default()
 
-	groupService := services.GroupService{}
+	groupService := services.NewGroupService()
 	groupController := controllers.GroupController{GroupService: groupService}
 
 	router.POST("/groups", groupController.CreateGroup)

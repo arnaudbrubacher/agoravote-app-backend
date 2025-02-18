@@ -25,7 +25,3 @@ func (vs *VoteService) FetchVotes(groupID string) ([]models.Vote, error) {
 	}
 	return votes, nil
 }
-
-func CreateVote(vote *models.Vote) error {
-	return database.DB.Create(vote).Error
-}
