@@ -60,15 +60,9 @@ func (uc *UserController) GetUser(c *gin.Context) {
 }
 
 func (uc *UserController) GetUserProfile(c *gin.Context) {
-	var user models.User
-	userID := c.Param("id")
-
-	if err := database.DB.First(&user, userID).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-		return
-	}
-
-	c.JSON(http.StatusOK, user)
+	id := c.Param("id")
+	// Add logic to retrieve user profile by ID
+	c.JSON(http.StatusOK, gin.H{"id": id, "profile": "User profile data"})
 }
 
 func (uc *UserController) DeleteUserAccount(c *gin.Context) {

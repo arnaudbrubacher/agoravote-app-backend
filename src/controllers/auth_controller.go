@@ -83,3 +83,39 @@ func Signup(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"token": tokenString})
 }
+
+// DeleteUserAccount deletes a user account by ID
+func DeleteUserAccount(c *gin.Context) {
+	id := c.Param("id")
+	userID, err := uuid.Parse(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	// Add logic to delete the user account from the database using the userID
+	if err := services.DeleteUserByID(userID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "User account deleted", "id": id})
+}
+
+// GetUserProfile handles the request to get a user's profile by ID
+func GetUserProfile(c *gin.Context) {
+	id := c.Param("id")
+	userID, err := uuid.Parse(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	var user models.User
+	if err := services.GetUserByID(userID, &user); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"user": user})
+}

@@ -4,6 +4,8 @@ import (
 	"agoravote-app-backend/src/database"
 	"agoravote-app-backend/src/models"
 	"errors"
+
+	"github.com/google/uuid"
 )
 
 type UserService struct{}
@@ -31,7 +33,7 @@ func (us *UserService) FetchUser(userId string) (models.User, error) {
 	return user, nil
 }
 
-func (us *UserService) GetUserByID(userID string) (*models.User, error) {
+func (us *UserService) GetUserByID(userID uuid.UUID) (*models.User, error) {
 	var user models.User
 	if err := database.DB.Where("id = ?", userID).First(&user).Error; err != nil {
 		return nil, err
@@ -44,6 +46,21 @@ func GetUserByEmail(email string, user *models.User) error {
 }
 
 func CreateUser(user *models.User) error {
-	// Remove the role field from the user creation logic
+	// Ensure the role field is not referenced
 	return database.DB.Create(user).Error
+}
+
+func DeleteUserByID(userID uuid.UUID) error {
+	if err := database.DB.Delete(&models.User{}, "id = ?", userID).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+// GetUserByID retrieves a user by their ID from the database
+func GetUserByID(userID uuid.UUID, user *models.User) error {
+	if err := database.DB.Where("id = ?", userID).First(user).Error; err != nil {
+		return err
+	}
+	return nil
 }
