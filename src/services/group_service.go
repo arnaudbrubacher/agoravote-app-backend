@@ -33,10 +33,6 @@ func (s *GroupService) FetchGroups() ([]models.Group, error) {
 	return groups, nil
 }
 
-func GetAllGroups(groups *[]models.Group) error {
-	return database.DB.Preload("Members").Find(groups).Error
-}
-
 func CreateGroupMember(groupMember *models.GroupMember) error {
 	return database.DB.Create(groupMember).Error
 }

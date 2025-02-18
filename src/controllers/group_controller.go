@@ -3,6 +3,7 @@ package controllers
 import (
 	"agoravote-app-backend/src/models"
 	"agoravote-app-backend/src/services"
+	"log"
 	"net/http"
 	"time"
 
@@ -23,10 +24,25 @@ func (gc *GroupController) CreateGroup(c *gin.Context) {
 	group.CreatedAt = time.Now() // Set the CreatedAt field
 
 	if err := gc.GroupService.CreateGroup(&group); err != nil {
+		log.Println("Error creating group:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
+	// Add the user who created the group as a member
+	userID := c.GetString("user_id") // Get the user ID from the context
+	groupMember := models.GroupMember{
+		GroupID:   group.ID,
+		UserID:    userID,
+		CreatedAt: time.Now(),
+	}
+	if err := services.CreateGroupMember(&groupMember); err != nil {
+		log.Println("Error creating group member:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	log.Println("Group created successfully:", group)
 	c.JSON(http.StatusOK, group)
 }
 
@@ -49,7 +65,7 @@ func (gc *GroupController) GetGroups(c *gin.Context) {
 	c.JSON(http.StatusOK, groups)
 }
 
-func GetUserGroups(c *gin.Context) {
+func (gc *GroupController) GetUserGroups(c *gin.Context) {
 	userID := c.GetString("user_id") // Get the user ID from the context
 	var groups []models.Group
 	if err := services.GetUserGroups(userID, &groups); err != nil {
@@ -59,9 +75,15 @@ func GetUserGroups(c *gin.Context) {
 	c.JSON(http.StatusOK, groups)
 }
 
-// GetGroups handles the request to get groups
+// GetUserGroups handles the request to get user groups
+func GetUserGroups(c *gin.Context) {
+	// Implement the logic to get user groups
+	c.JSON(http.StatusOK, gin.H{"message": "GetUserGroups endpoint"})
+}
+
+// GetGroups handles the request to get all groups
 func GetGroups(c *gin.Context) {
-	// Implement the logic to get groups
+	// Implement your logic to get groups here
 	c.JSON(http.StatusOK, gin.H{"message": "GetGroups endpoint"})
 }
 
