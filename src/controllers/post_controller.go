@@ -1,10 +1,12 @@
 package controllers
 
 import (
-	"net/http"
-	"github.com/gin-gonic/gin"
 	"agoravote-app-backend/src/models"
 	"agoravote-app-backend/src/services"
+	"net/http"
+	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 type PostController struct {
@@ -21,6 +23,8 @@ func (pc *PostController) CreatePost(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	post.CreatedAt = time.Now()
 
 	if err := pc.PostService.CreatePost(post); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

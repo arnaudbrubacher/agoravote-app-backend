@@ -1,10 +1,12 @@
 package controllers
 
 import (
-	"net/http"
-	"github.com/gin-gonic/gin"
 	"agoravote-app-backend/src/models"
 	"agoravote-app-backend/src/services"
+	"net/http"
+	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 type VoteController struct {
@@ -21,6 +23,8 @@ func (vc *VoteController) CreateVote(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	vote.CreatedAt = time.Now()
 
 	if err := vc.VoteService.CreateVote(vote); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

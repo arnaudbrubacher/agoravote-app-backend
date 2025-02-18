@@ -83,3 +83,13 @@ func CreateGroup(c *gin.Context) {
 
 	c.JSON(http.StatusOK, group)
 }
+
+func GetUserGroups(c *gin.Context) {
+	userID := c.GetString("user_id") // Get the user ID from the context
+	var groups []models.Group
+	if err := services.GetUserGroups(userID, &groups); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, groups)
+}

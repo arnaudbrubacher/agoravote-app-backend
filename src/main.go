@@ -38,6 +38,9 @@ func main() {
 	{
 		protected.GET("/groups", controllers.GetGroups)
 		protected.POST("/groups", controllers.CreateGroup)
+		protected.GET("/user/groups", controllers.GetUserGroups)
+		protected.POST("/posts", controllers.CreatePost)
+		protected.POST("/votes", controllers.CreateVote)
 	}
 
 	log.Println("Starting server on :8080")

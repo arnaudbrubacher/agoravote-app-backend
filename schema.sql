@@ -71,8 +71,9 @@ ALTER TABLE public.groups OWNER TO agoravotedb;
 CREATE TABLE public.posts (
     id bigint NOT NULL,
     group_id uuid NOT NULL,
+    user_id uuid NOT NULL,
     content text NOT NULL,
-    created_at text NOT NULL
+    created_at timestamp with time zone NOT NULL
 );
 
 
@@ -104,7 +105,7 @@ ALTER SEQUENCE public.posts_id_seq OWNED BY public.posts.id;
 --
 
 CREATE TABLE public.users (
-    id text NOT NULL,
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     name text,
     email text,
     password text,
@@ -121,9 +122,9 @@ ALTER TABLE public.users OWNER TO agoravotedb;
 CREATE TABLE public.votes (
     id bigint NOT NULL,
     group_id uuid NOT NULL,
+    user_id uuid NOT NULL,
     value text,
-    user_id text NOT NULL,
-    created_at text NOT NULL
+    created_at timestamp with time zone NOT NULL
 );
 
 
@@ -211,6 +212,34 @@ ALTER TABLE ONLY public.votes
 ALTER TABLE ONLY public.group_members
     ADD CONSTRAINT fk_groups_members FOREIGN KEY (group_id) REFERENCES public.groups(id);
 
+
+--
+-- Name: posts fk_posts_groups; Type: FK CONSTRAINT; Schema: public; Owner: agoravotedb
+--
+
+ALTER TABLE ONLY public.posts
+    ADD CONSTRAINT fk_posts_groups FOREIGN KEY (group_id) REFERENCES public.groups(id);
+
+--
+-- Name: posts fk_posts_users; Type: FK CONSTRAINT; Schema: public; Owner: agoravotedb
+--
+
+ALTER TABLE ONLY public.posts
+    ADD CONSTRAINT fk_posts_users FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+--
+-- Name: votes fk_votes_groups; Type: FK CONSTRAINT; Schema: public; Owner: agoravotedb
+--
+
+ALTER TABLE ONLY public.votes
+    ADD CONSTRAINT fk_votes_groups FOREIGN KEY (group_id) REFERENCES public.groups(id);
+
+--
+-- Name: votes fk_votes_users; Type: FK CONSTRAINT; Schema: public; Owner: agoravotedb
+--
+
+ALTER TABLE ONLY public.votes
+    ADD CONSTRAINT fk_votes_users FOREIGN KEY (user_id) REFERENCES public.users(id);
 
 --
 -- Name: SCHEMA public; Type: ACL; Schema: -; Owner: arnaudbrubacher
