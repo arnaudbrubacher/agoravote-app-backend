@@ -8,12 +8,13 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 var JWTKey = []byte("your_secret_key")
 
 type Claims struct {
-	UserID string `json:"user_id"`
+	UserID uuid.UUID `json:"user_id"`
 	jwt.StandardClaims
 }
 

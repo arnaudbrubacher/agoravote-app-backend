@@ -6,14 +6,14 @@ import (
 )
 
 type User struct {
-	ID       string `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	Name     string `gorm:"not null"`
-	Email    string `gorm:"unique;not null"`
-	Password string `gorm:"not null"`
-	Role     string
+	ID       uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()" json:"id"`
+	Name     string    `json:"name"`
+	Email    string    `gorm:"unique" json:"email"`
+	Password string    `json:"password"`
+	Role     string    `json:"role"`
 }
 
 func (user *User) BeforeCreate(tx *gorm.DB) (err error) {
-	user.ID = uuid.New().String()
+	user.ID = uuid.New()
 	return
 }

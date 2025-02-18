@@ -7,15 +7,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetupRoutes() *gin.Engine {
+func SetupRouter() *gin.Engine {
 	router := gin.Default()
 
-	groupService := services.NewGroupService()
-	groupController := controllers.GroupController{GroupService: groupService}
+	userService := services.NewUserService()
+	userController := controllers.NewUserController(userService)
 
-	router.POST("/groups", groupController.CreateGroup)
-	router.GET("/groups/:id", groupController.GetGroup)
-	router.GET("/groups", groupController.GetGroups)
+	router.GET("/user/profile", userController.GetUserProfile)
 
 	return router
 }

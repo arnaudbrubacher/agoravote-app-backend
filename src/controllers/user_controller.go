@@ -10,7 +10,11 @@ import (
 )
 
 type UserController struct {
-	UserService services.UserService
+	userService *services.UserService
+}
+
+func NewUserController(userService *services.UserService) *UserController {
+	return &UserController{userService: userService}
 }
 
 func (uc *UserController) CreateUser(c *gin.Context) {
@@ -35,7 +39,7 @@ func (uc *UserController) UserLogin(c *gin.Context) {
 		return
 	}
 
-	token, err := uc.UserService.AuthenticateUser(user)
+	token, err := uc.userService.AuthenticateUser(user)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
@@ -46,11 +50,34 @@ func (uc *UserController) UserLogin(c *gin.Context) {
 
 func (uc *UserController) GetUser(c *gin.Context) {
 	userId := c.Param("id")
-	user, err := uc.UserService.FetchUser(userId)
+	user, err := uc.userService.FetchUser(userId)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
 
 	c.JSON(http.StatusOK, user)
+}
+
+func (uc *UserController) GetUserProfile(c *gin.Context) {
+	var user models.User
+	userID := c.Param("id")
+
+	if err := database.DB.First(&user, userID).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, user)
+}
+
+func (uc *UserController) DeleteUserAccount(c *gin.Context) {
+	userID := c.Param("id")
+
+	if err := database.DB.Delete(&models.User{}, userID).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user account"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "User account deleted successfully"})
 }

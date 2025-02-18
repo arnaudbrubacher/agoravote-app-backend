@@ -1,10 +1,11 @@
 package main
 
 import (
+	"log"
+
 	"agoravote-app-backend/src/controllers"
 	"agoravote-app-backend/src/database"
 	"agoravote-app-backend/src/middleware"
-	"log"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -18,7 +19,8 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	database.ConnectDB() // Ensure the database connection is established
+	// Connect to the database
+	database.ConnectDB()
 
 	// Add CORS middleware
 	r := gin.Default()
@@ -39,6 +41,8 @@ func main() {
 		protected.GET("/groups", controllers.GetGroups)
 		protected.POST("/groups", controllers.CreateGroup)
 		protected.GET("/user/groups", controllers.GetUserGroups)
+		protected.GET("/user/profile/:id", controllers.GetUserProfile)
+		protected.DELETE("/user/:id", controllers.DeleteUserAccount)
 		protected.POST("/posts", controllers.CreatePost)
 		protected.POST("/votes", controllers.CreateVote)
 	}
