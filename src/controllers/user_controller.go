@@ -60,11 +60,6 @@ func (uc *UserController) GetUser(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-func (uc *UserController) GetUserProfile(c *gin.Context) {
-	// Implement the logic to get user profile
-	c.JSON(http.StatusOK, gin.H{"message": "User profile"})
-}
-
 func GetUserProfile(c *gin.Context) {
 	id := c.Param("id")
 	userID, err := uuid.Parse(id)
@@ -87,6 +82,19 @@ func DeleteUserAccount(c *gin.Context) {
 	userID, err := uuid.Parse(id)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	// Extract user ID from JWT token
+	tokenUserID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	// Check if the user ID from the token matches the user ID in the request parameters
+	if tokenUserID != userID {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "You can only delete your own account"})
 		return
 	}
 

@@ -13,7 +13,7 @@ func SetupRouter() *gin.Engine {
 	userService := services.NewUserService()
 	userController := controllers.NewUserController(userService)
 
-	router.GET("/user/profile", userController.GetUserProfile)
+	router.GET("/user/profile", GetUserProfile)
 
 	return router
 }
