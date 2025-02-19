@@ -82,36 +82,4 @@ func Signup(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"token": tokenString, "userId": user.ID})
 }
-
-func GetUserProfile(c *gin.Context) {
-	id := c.Param("id")
-	userID, err := uuid.Parse(id)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-		return
-	}
-
-	var user models.User
-	if err := services.GetUserByID(userID, &user); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"user": user})
-}
-
-func DeleteUserAccount(c *gin.Context) {
-	id := c.Param("id")
-	userID, err := uuid.Parse(id)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-		return
-	}
-
-	if err := services.DeleteUserByID(userID); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "User account deleted"})
-}
+// Removed DeleteUserAccount function from auth_controller.go

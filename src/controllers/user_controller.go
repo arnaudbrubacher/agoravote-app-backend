@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type UserController struct {
@@ -60,18 +61,39 @@ func (uc *UserController) GetUser(c *gin.Context) {
 }
 
 func (uc *UserController) GetUserProfile(c *gin.Context) {
-	id := c.Param("id")
-	// Add logic to retrieve user profile by ID
-	c.JSON(http.StatusOK, gin.H{"id": id, "profile": "User profile data"})
+	// Implement the logic to get user profile
+	c.JSON(http.StatusOK, gin.H{"message": "User profile"})
 }
 
-func (uc *UserController) DeleteUserAccount(c *gin.Context) {
-	userID := c.Param("id")
-
-	if err := database.DB.Delete(&models.User{}, userID).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user account"})
+func GetUserProfile(c *gin.Context) {
+	id := c.Param("id")
+	userID, err := uuid.Parse(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "User account deleted successfully"})
+	var user models.User
+	if err := services.GetUserByID(userID, &user); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"user": user})
+}
+
+func DeleteUserAccount(c *gin.Context) {
+	id := c.Param("id")
+	userID, err := uuid.Parse(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	if err := services.DeleteUserByID(userID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "User account deleted"})
 }
