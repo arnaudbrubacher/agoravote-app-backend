@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"agoravote-app-backend/src/database"
 	"agoravote-app-backend/src/models"
 	"agoravote-app-backend/src/services"
 	"net/http"
@@ -11,11 +10,11 @@ import (
 )
 
 type UserController struct {
-	userService *services.UserService
+	UserService *services.UserService
 }
 
 func NewUserController(userService *services.UserService) *UserController {
-	return &UserController{userService: userService}
+	return &UserController{UserService: userService}
 }
 
 func (uc *UserController) CreateUser(c *gin.Context) {
@@ -25,7 +24,7 @@ func (uc *UserController) CreateUser(c *gin.Context) {
 		return
 	}
 
-	if err := database.DB.Create(&user).Error; err != nil {
+	if err := services.CreateUser(&user); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -40,7 +39,7 @@ func (uc *UserController) UserLogin(c *gin.Context) {
 		return
 	}
 
-	token, err := uc.userService.AuthenticateUser(user)
+	token, err := uc.UserService.AuthenticateUser(user)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
@@ -51,7 +50,7 @@ func (uc *UserController) UserLogin(c *gin.Context) {
 
 func (uc *UserController) GetUser(c *gin.Context) {
 	userId := c.Param("id")
-	user, err := uc.userService.FetchUser(userId)
+	user, err := uc.UserService.FetchUser(uuid.MustParse(userId))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
@@ -60,7 +59,7 @@ func (uc *UserController) GetUser(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-func GetUserProfile(c *gin.Context) {
+func (uc *UserController) GetUserProfile(c *gin.Context) {
 	id := c.Param("id")
 	userID, err := uuid.Parse(id)
 	if err != nil {
@@ -68,16 +67,16 @@ func GetUserProfile(c *gin.Context) {
 		return
 	}
 
-	var user models.User
-	if err := services.GetUserByID(userID, &user); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	user, err := uc.UserService.FetchUser(userID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"user": user})
+	c.JSON(http.StatusOK, user)
 }
 
-func DeleteUserAccount(c *gin.Context) {
+func (uc *UserController) DeleteUserAccount(c *gin.Context) {
 	id := c.Param("id")
 	userID, err := uuid.Parse(id)
 	if err != nil {

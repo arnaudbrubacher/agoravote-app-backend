@@ -6,6 +6,7 @@ import (
 	"agoravote-app-backend/src/controllers"
 	"agoravote-app-backend/src/database"
 	"agoravote-app-backend/src/middleware"
+	"agoravote-app-backend/src/services"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -32,8 +33,11 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	r.POST("/login", controllers.Login)
-	r.POST("/signup", controllers.Signup)
+	userService := services.NewUserService()
+	userController := controllers.NewUserController(userService)
+
+	r.POST("/login", userController.UserLogin)
+	r.POST("/signup", userController.CreateUser)
 
 	protected := r.Group("/")
 	protected.Use(middleware.AuthMiddleware())
@@ -41,8 +45,8 @@ func main() {
 		protected.GET("/groups", controllers.GetGroups)
 		protected.POST("/groups", controllers.CreateGroup)
 		protected.GET("/user/groups", controllers.GetUserGroups)
-		protected.GET("/user/profile/:id", controllers.GetUserProfile) // Include user ID as a path parameter
-		protected.DELETE("/user/:id", controllers.DeleteUserAccount)   // Include user ID as a path parameter
+		protected.GET("/user/profile/:id", userController.GetUserProfile) // Include user ID as a path parameter
+		protected.DELETE("/user/:id", userController.DeleteUserAccount)   // Include user ID as a path parameter
 		protected.POST("/posts", controllers.CreatePost)
 		protected.POST("/votes", controllers.CreateVote)
 	}

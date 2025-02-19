@@ -3,7 +3,6 @@ package services
 import (
 	"agoravote-app-backend/src/database"
 	"agoravote-app-backend/src/models"
-	"errors"
 
 	"github.com/google/uuid"
 )
@@ -15,22 +14,19 @@ func NewUserService() *UserService {
 }
 
 func (us *UserService) AuthenticateUser(user models.User) (string, error) {
-	var existingUser models.User
-	if err := database.DB.Where("email = ? AND password = ?", user.Email, user.Password).First(&existingUser).Error; err != nil {
-		return "", errors.New("invalid credentials")
-	}
-
-	// Generate a token (this is a placeholder, implement your own token generation logic)
-	token := "generated-jwt-token"
-	return token, nil
+	// Implement the logic to authenticate the user and return a token
+	return "", nil
 }
 
-func (us *UserService) FetchUser(userId string) (models.User, error) {
-	var user models.User
-	if err := database.DB.First(&user, "id = ?", userId).Error; err != nil {
-		return user, errors.New("user not found")
-	}
-	return user, nil
+func (us *UserService) FetchUser(userID uuid.UUID) (*models.User, error) {
+	// Implement the logic to fetch the user by ID from the database
+	// For example:
+	// var user models.User
+	// if err := database.DB.First(&user, "id = ?", userID).Error; err != nil {
+	//     return nil, err
+	// }
+	// return &user, nil
+	return nil, nil
 }
 
 func (us *UserService) GetUserByID(userID uuid.UUID) (*models.User, error) {
