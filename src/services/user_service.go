@@ -46,7 +46,7 @@ func GetUserByEmail(email string, user *models.User) error {
 }
 
 func CreateUser(user *models.User) error {
-	// Ensure the role field is not referenced
+	user.ID = uuid.New()
 	return database.DB.Create(user).Error
 }
 

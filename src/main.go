@@ -41,8 +41,8 @@ func main() {
 		protected.GET("/groups", controllers.GetGroups)
 		protected.POST("/groups", controllers.CreateGroup)
 		protected.GET("/user/groups", controllers.GetUserGroups)
-		protected.GET("/user/profile/:id", controllers.GetUserProfile)
-		protected.DELETE("/user/:id", controllers.DeleteUserAccount)
+		protected.GET("/user/profile/:id", controllers.GetUserProfile) // Include user ID as a path parameter
+		protected.DELETE("/user/:id", controllers.DeleteUserAccount)   // Include user ID as a path parameter
 		protected.POST("/posts", controllers.CreatePost)
 		protected.POST("/votes", controllers.CreateVote)
 	}

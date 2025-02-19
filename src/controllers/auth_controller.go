@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"agoravote-app-backend/src/config"
 	"agoravote-app-backend/src/models"
 	"agoravote-app-backend/src/services"
 	"net/http"
@@ -11,11 +12,27 @@ import (
 	"github.com/google/uuid"
 )
 
-var JWTKey = []byte("your_secret_key")
-
 type Claims struct {
 	UserID uuid.UUID `json:"user_id"`
 	jwt.StandardClaims
+}
+
+func generateJWT(userID uuid.UUID) (string, error) {
+	expirationTime := time.Now().Add(24 * time.Hour)
+	claims := &Claims{
+		UserID: userID,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expirationTime.Unix(),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString(config.JWTKey)
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
 }
 
 func Login(c *gin.Context) {
@@ -36,22 +53,13 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	expirationTime := time.Now().Add(24 * time.Hour)
-	claims := &Claims{
-		UserID: dbUser.ID,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime.Unix(),
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(JWTKey)
+	tokenString, err := generateJWT(dbUser.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": tokenString})
+	c.JSON(http.StatusOK, gin.H{"token": tokenString, "userId": dbUser.ID})
 }
 
 func Signup(c *gin.Context) {
@@ -66,43 +74,15 @@ func Signup(c *gin.Context) {
 		return
 	}
 
-	expirationTime := time.Now().Add(24 * time.Hour)
-	claims := &Claims{
-		UserID: user.ID,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime.Unix(),
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(JWTKey)
+	tokenString, err := generateJWT(user.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": tokenString})
+	c.JSON(http.StatusOK, gin.H{"token": tokenString, "userId": user.ID})
 }
 
-// DeleteUserAccount deletes a user account by ID
-func DeleteUserAccount(c *gin.Context) {
-	id := c.Param("id")
-	userID, err := uuid.Parse(id)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-		return
-	}
-
-	// Add logic to delete the user account from the database using the userID
-	if err := services.DeleteUserByID(userID); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "User account deleted", "id": id})
-}
-
-// GetUserProfile handles the request to get a user's profile by ID
 func GetUserProfile(c *gin.Context) {
 	id := c.Param("id")
 	userID, err := uuid.Parse(id)
@@ -118,4 +98,20 @@ func GetUserProfile(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"user": user})
+}
+
+func DeleteUserAccount(c *gin.Context) {
+	id := c.Param("id")
+	userID, err := uuid.Parse(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	if err := services.DeleteUserByID(userID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "User account deleted"})
 }
