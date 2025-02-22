@@ -23,6 +23,8 @@ func AuthMiddleware() gin.HandlerFunc {
 		claims := &controllers.Claims{}
 
 		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+			// verify the token here and return the token instead of jwtkey
+
 			return config.JWTKey, nil
 		})
 

@@ -36,8 +36,8 @@ func main() {
 	userService := services.NewUserService()
 	userController := controllers.NewUserController(userService)
 
-	r.POST("/login", userController.UserLogin)
-	r.POST("/signup", userController.CreateUser)
+	r.POST("/login", controllers.Login)
+	r.POST("/signup", controllers.Signup)
 
 	protected := r.Group("/")
 	protected.Use(middleware.AuthMiddleware())

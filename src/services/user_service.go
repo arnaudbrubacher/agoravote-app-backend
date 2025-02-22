@@ -26,6 +26,7 @@ func (us *UserService) FetchUser(userID uuid.UUID) (*models.User, error) {
 	//     return nil, err
 	// }
 	// return &user, nil
+
 	return nil, nil
 }
 
