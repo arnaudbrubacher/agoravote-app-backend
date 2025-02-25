@@ -25,18 +25,16 @@ func AuthMiddleware() gin.HandlerFunc {
 		claims := &controllers.Claims{}
 
 		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-			// verify the token here and return the token instead of jwtkey
-
 			return config.JWTKey, nil
 		})
 
 		if err != nil || !token.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
 			c.Abort()
 			return
 		}
 
-		c.Set("userID", claims.UserID)
+		c.Set("user_id", claims.UserID.String())
 		c.Next()
 	}
 }

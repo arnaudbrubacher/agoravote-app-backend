@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"agoravote-app-backend/src/controllers"
 	"agoravote-app-backend/src/database"
@@ -25,21 +26,25 @@ func main() {
 	// Initialize database connection
 	database.ConnectDB()
 
-	// Configure CORS middleware
+	// Configure router
 	r := gin.Default()
+
+	// CORS middleware
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
 	}))
 
 	// Initialize services and controllers
 	userService := services.NewUserService()
+	groupService := services.NewGroupService()
 	userController := controllers.NewUserController(userService)
+	groupController := controllers.NewGroupController(groupService)
 
-	// Configure routes
 	// Public routes
 	r.POST("/login", controllers.Login)
 	r.POST("/signup", controllers.Signup)
@@ -48,11 +53,15 @@ func main() {
 	protected := r.Group("/")
 	protected.Use(middleware.AuthMiddleware())
 	{
-		protected.GET("/groups", controllers.GetGroups)
-		protected.GET("/user/profile/:id", userController.GetUserProfile) // Include user ID as a path parameter
-		protected.DELETE("/user/:id", userController.DeleteUserAccount)   // Include user ID as a path parameter
-		protected.POST("/posts", controllers.CreatePost)
-		protected.POST("/votes", controllers.CreateVote)
+		// Group routes
+		protected.POST("/groups", groupController.CreateGroup)
+		protected.GET("/groups", groupController.GetGroups)
+		protected.GET("/groups/:id", groupController.GetGroup)
+		protected.GET("/user/groups", groupController.GetUserGroups)
+
+		// User routes
+		protected.GET("/user/profile/:id", userController.GetUserProfile)
+		protected.DELETE("/user/:id", userController.DeleteUserAccount)
 	}
 
 	// Start server

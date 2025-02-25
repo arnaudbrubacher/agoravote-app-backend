@@ -61,7 +61,9 @@ CREATE TABLE public.groups (
     is_private boolean NOT NULL,
     last_active timestamp with time zone NOT NULL,
     created_at timestamp with time zone DEFAULT now(),
-    updated_at timestamp with time zone DEFAULT now()
+    updated_at timestamp with time zone DEFAULT now(),
+    password text,
+    requires_password boolean DEFAULT false NOT NULL
 );
 
 

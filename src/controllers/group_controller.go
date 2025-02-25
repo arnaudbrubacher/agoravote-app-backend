@@ -4,24 +4,23 @@ import (
 	"agoravote-app-backend/src/database"
 	"agoravote-app-backend/src/models"
 	"agoravote-app-backend/src/services"
-	"log"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
-// GroupController
-// Handles group-related operations and dependencies
-// Frontend: Base controller used by all group-related components
+// GroupController handles group-related requests
 type GroupController struct {
-	GroupService *services.GroupService
+	groupService *services.GroupService
 }
 
-// CreateGroup
-// Creates a new group and assigns creator as admin member
-// Frontend: Called by NewGroupDialog.vue when clicking "Create Group" button on /dashboard page
+// NewGroupController creates a new GroupController
+func NewGroupController(groupService *services.GroupService) *GroupController {
+	return &GroupController{groupService: groupService}
+}
+
+// CreateGroup handles the creation of a new group
 func (gc *GroupController) CreateGroup(c *gin.Context) {
 	var group models.Group
 	if err := c.ShouldBindJSON(&group); err != nil {
@@ -29,29 +28,19 @@ func (gc *GroupController) CreateGroup(c *gin.Context) {
 		return
 	}
 
-	group.CreatedAt = time.Now() // Set the CreatedAt field
+	// Get user ID from JWT token
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
 
-	if err := gc.GroupService.CreateGroup(&group); err != nil {
-		log.Println("Error creating group:", err)
+	if err := gc.groupService.CreateGroup(&group, uuid.MustParse(userID.(string))); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Add the user who created the group as a member
-	userID := c.GetString("user_id") // Get the user ID from the context
-	groupMember := models.GroupMember{
-		GroupID:   group.ID,
-		UserID:    uuid.MustParse(userID),
-		CreatedAt: time.Now(),
-	}
-	if err := services.CreateGroupMember(&groupMember); err != nil {
-		log.Println("Error creating group member:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	log.Println("Group created successfully:", group)
-	c.JSON(http.StatusOK, group)
+	c.JSON(http.StatusCreated, group)
 }
 
 // GetGroup
@@ -59,7 +48,7 @@ func (gc *GroupController) CreateGroup(c *gin.Context) {
 // Frontend: Called by GroupDetails.vue when loading /groups/:id page
 func (gc *GroupController) GetGroup(c *gin.Context) {
 	id := c.Param("id")
-	group, err := gc.GroupService.GetGroupByID(id)
+	group, err := gc.groupService.GetGroupByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Group not found"})
 		return
@@ -71,7 +60,7 @@ func (gc *GroupController) GetGroup(c *gin.Context) {
 // Retrieves all groups accessible to the user
 // Frontend: Called by GroupList.vue when loading /dashboard page
 func (gc *GroupController) GetGroups(c *gin.Context) {
-	groups, err := gc.GroupService.FetchGroups()
+	groups, err := gc.groupService.FetchGroups()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -90,6 +79,41 @@ func (gc *GroupController) GetUserGroups(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, groups)
+}
+
+// InviteToGroup invites a user to a group
+func (gc *GroupController) InviteToGroup(c *gin.Context) {
+	groupID := c.Param("id")
+	var req struct {
+		Email string `json:"email" binding:"required,email"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	invitation, err := gc.groupService.InviteToGroup(uuid.MustParse(groupID), req.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// TODO: Send email with invitation link
+	c.JSON(http.StatusOK, invitation)
+}
+
+// AcceptInvitation accepts a group invitation
+func (gc *GroupController) AcceptInvitation(c *gin.Context) {
+	token := c.Param("token")
+	userID := c.GetString("user_id")
+
+	if err := gc.groupService.AcceptInvitation(token, uuid.MustParse(userID)); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Successfully joined group"})
 }
 
 // [DEPRECATED] GetGroups
