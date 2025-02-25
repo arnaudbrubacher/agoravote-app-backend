@@ -104,29 +104,3 @@ func GetGroups(c *gin.Context) {
 
 	c.JSON(http.StatusOK, groups)
 }
-
-// [DEPRECATED] CreateGroup
-// Old implementation to be removed
-// Frontend: No longer used, replaced by GroupController.CreateGroup
-func CreateGroup(c *gin.Context) {
-	var group models.Group
-	if err := c.ShouldBindJSON(&group); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-		return
-	}
-
-	if err := database.DB.Create(&group).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create group"})
-		return
-	}
-
-	c.JSON(http.StatusOK, group)
-}
-
-// [DEPRECATED] GetUserGroups
-// Old implementation to be removed
-// Frontend: No longer used, replaced by GroupController.GetUserGroups
-func GetUserGroups(c *gin.Context) {
-	// Implement the logic to get user groups
-	c.JSON(http.StatusOK, gin.H{"message": "GetUserGroups endpoint"})
-}

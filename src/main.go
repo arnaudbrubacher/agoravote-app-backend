@@ -49,8 +49,6 @@ func main() {
 	protected.Use(middleware.AuthMiddleware())
 	{
 		protected.GET("/groups", controllers.GetGroups)
-		protected.POST("/groups", controllers.CreateGroup)
-		protected.GET("/user/groups", controllers.GetUserGroups)
 		protected.GET("/user/profile/:id", userController.GetUserProfile) // Include user ID as a path parameter
 		protected.DELETE("/user/:id", userController.DeleteUserAccount)   // Include user ID as a path parameter
 		protected.POST("/posts", controllers.CreatePost)
