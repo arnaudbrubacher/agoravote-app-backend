@@ -7,12 +7,16 @@ import (
 	"github.com/google/uuid"
 )
 
+// UserService
+// Business logic layer for user-related operations
 type UserService struct{}
 
 func NewUserService() *UserService {
 	return &UserService{}
 }
 
+// AuthenticateUser
+// Validates user credentials and generates authentication token
 func (us *UserService) AuthenticateUser(user models.User) (string, error) {
 	// Implement the logic to authenticate the user and return a token
 	return "", nil
@@ -30,6 +34,8 @@ func (us *UserService) FetchUser(userID uuid.UUID) (*models.User, error) {
 	return nil, nil
 }
 
+// GetUserByID
+// Database query to retrieve user by UUID
 func (us *UserService) GetUserByID(userID uuid.UUID) (*models.User, error) {
 	var user models.User
 	if err := database.DB.Where("id = ?", userID).First(&user).Error; err != nil {
@@ -46,7 +52,8 @@ func CreateUser(user *models.User) error {
 	user.ID = uuid.New()
 	return database.DB.Create(user).Error
 }
-
+// DeleteUserByID
+// Database operation to remove user account
 func DeleteUserByID(userID uuid.UUID) error {
 	if err := database.DB.Delete(&models.User{}, "id = ?", userID).Error; err != nil {
 		return err

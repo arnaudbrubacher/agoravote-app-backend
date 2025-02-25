@@ -9,14 +9,20 @@ import (
 	"github.com/google/uuid"
 )
 
+// UserController
+// Handles HTTP requests for user-related operations
 type UserController struct {
 	UserService *services.UserService
 }
 
+// NewUserController
+// Creates a new user controller with injected user service
 func NewUserController(userService *services.UserService) *UserController {
 	return &UserController{UserService: userService}
 }
 
+// CreateUser
+// Handles HTTP request to create a new user account
 func (uc *UserController) CreateUser(c *gin.Context) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -32,6 +38,8 @@ func (uc *UserController) CreateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
+// GetUser
+// Retrieves user details excluding sensitive information
 func (uc *UserController) GetUser(c *gin.Context) {
 	userId := c.Param("id")
 	user, err := uc.UserService.GetUserByID(uuid.MustParse(userId))
@@ -45,6 +53,8 @@ func (uc *UserController) GetUser(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
+// GetUserProfile
+// Retrieves public user profile by ID
 func (uc *UserController) GetUserProfile(c *gin.Context) {
 	id := c.Param("id")
 	userID, err := uuid.Parse(id)
@@ -63,6 +73,8 @@ func (uc *UserController) GetUserProfile(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
+// DeleteUserAccount
+// Removes user account after verifying ownership
 func (uc *UserController) DeleteUserAccount(c *gin.Context) {
 	id := c.Param("id")
 	userID, err := uuid.Parse(id)

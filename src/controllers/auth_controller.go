@@ -12,11 +12,15 @@ import (
 	"github.com/google/uuid"
 )
 
+// Claims
+// Data structure for JWT token payload containing user identification
 type Claims struct {
 	UserID uuid.UUID `json:"user_id"`
 	jwt.StandardClaims
 }
 
+// GenerateJWT
+// Token generation utility that creates signed JWT tokens for users
 func generateJWT(userID uuid.UUID) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour)
 	claims := &Claims{
@@ -35,6 +39,8 @@ func generateJWT(userID uuid.UUID) (string, error) {
 	return tokenString, nil
 }
 
+// Login
+// Authentication endpoint that validates credentials and returns JWT
 func Login(c *gin.Context) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -62,6 +68,8 @@ func Login(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"token": tokenString, "userId": dbUser.ID})
 }
 
+// Signup
+// Registration endpoint that creates new users and returns JWT
 func Signup(c *gin.Context) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -82,4 +90,3 @@ func Signup(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"token": tokenString, "userId": user.ID})
 }
-// Removed DeleteUserAccount function from auth_controller.go

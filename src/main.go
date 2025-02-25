@@ -13,17 +13,19 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// main
+// Application entry point - configures and starts the server
 func main() {
-	// Load environment variables from .env file
+	// Initialize environment variables
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
-	// Connect to the database
+	// Initialize database connection
 	database.ConnectDB()
 
-	// Add CORS middleware
+	// Configure CORS middleware
 	r := gin.Default()
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},
@@ -33,12 +35,16 @@ func main() {
 		AllowCredentials: true,
 	}))
 
+	// Initialize services and controllers
 	userService := services.NewUserService()
 	userController := controllers.NewUserController(userService)
 
+	// Configure routes
+	// Public routes
 	r.POST("/login", controllers.Login)
 	r.POST("/signup", controllers.Signup)
 
+	// Protected routes
 	protected := r.Group("/")
 	protected.Use(middleware.AuthMiddleware())
 	{
@@ -51,6 +57,7 @@ func main() {
 		protected.POST("/votes", controllers.CreateVote)
 	}
 
+	// Start server
 	log.Println("Starting server on :8080")
 	if err := r.Run(":8080"); err != nil {
 		log.Fatal(err)
