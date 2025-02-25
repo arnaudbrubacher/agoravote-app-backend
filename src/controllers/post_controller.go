@@ -24,7 +24,7 @@ func (pc *PostController) CreatePost(c *gin.Context) {
 		return
 	}
 
-	post.CreatedAt = time.Now().Format(time.RFC3339)
+	post.CreatedAt = time.Now()
 
 	if err := services.CreatePost(&post); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -50,7 +50,7 @@ func CreatePost(c *gin.Context) {
 		return
 	}
 
-	post.CreatedAt = time.Now().Format(time.RFC3339)
+	post.CreatedAt = time.Now()
 
 	if err := services.CreatePost(&post); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

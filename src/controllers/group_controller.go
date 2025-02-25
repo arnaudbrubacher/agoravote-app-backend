@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type GroupController struct {
@@ -33,8 +34,8 @@ func (gc *GroupController) CreateGroup(c *gin.Context) {
 	// Add the user who created the group as a member
 	userID := c.GetString("user_id") // Get the user ID from the context
 	groupMember := models.GroupMember{
-		GroupID:   group.ID.String(),
-		UserID:    userID,
+		GroupID:   group.ID,
+		UserID:    uuid.MustParse(userID),
 		CreatedAt: time.Now(),
 	}
 	if err := services.CreateGroupMember(&groupMember); err != nil {
