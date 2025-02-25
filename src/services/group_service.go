@@ -58,9 +58,12 @@ func (s *GroupService) CreateGroup(group *models.Group, creatorID uuid.UUID) err
 // GetGroupByID
 // Database query to fetch single group with members
 // Frontend: Called by GroupDetails.vue when loading group page
-func (s *GroupService) GetGroupByID(id string) (*models.Group, error) {
+func (s *GroupService) GetGroupByID(groupID uuid.UUID) (*models.Group, error) {
 	var group models.Group
-	if err := database.DB.Preload("Members").First(&group, "id = ?", id).Error; err != nil {
+	if err := database.DB.Preload("Members").
+		Preload("Members.User"). // Add this to get user details
+		Where("id = ?", groupID).
+		First(&group).Error; err != nil {
 		return nil, err
 	}
 	return &group, nil

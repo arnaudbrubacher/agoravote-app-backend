@@ -47,12 +47,18 @@ func (gc *GroupController) CreateGroup(c *gin.Context) {
 // Retrieves a single group by its ID with members
 // Frontend: Called by GroupDetails.vue when loading /groups/:id page
 func (gc *GroupController) GetGroup(c *gin.Context) {
-	id := c.Param("id")
-	group, err := gc.groupService.GetGroupByID(id)
+	groupID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid group ID format"})
+		return
+	}
+
+	group, err := gc.groupService.GetGroupByID(groupID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Group not found"})
 		return
 	}
+
 	c.JSON(http.StatusOK, group)
 }
 

@@ -49,6 +49,9 @@ func SetupRouter() *gin.Engine {
 		protected.GET("/user/groups", groupController.GetUserGroups)
 		protected.POST("/groups/:id/invite", groupController.InviteToGroup)
 		protected.POST("/groups/join/:token", groupController.AcceptInvitation)
+		protected.PUT("/groups/:id", groupController.UpdateGroup)
+		protected.POST("/groups/:id/members", groupController.AddMember)
+		protected.DELETE("/groups/:id/members/:memberId", groupController.RemoveMember)
 	}
 
 	return router
