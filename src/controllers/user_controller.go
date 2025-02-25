@@ -11,18 +11,21 @@ import (
 
 // UserController
 // Handles HTTP requests for user-related operations
+// Frontend: Used across all authenticated pages for user management
 type UserController struct {
 	UserService *services.UserService
 }
 
 // NewUserController
 // Creates a new user controller with injected user service
+// Frontend: Not directly used - internal initialization
 func NewUserController(userService *services.UserService) *UserController {
 	return &UserController{UserService: userService}
 }
 
 // CreateUser
 // Handles HTTP request to create a new user account
+// Frontend: Called from SignupForm.vue component's "Sign Up" button
 func (uc *UserController) CreateUser(c *gin.Context) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -40,6 +43,7 @@ func (uc *UserController) CreateUser(c *gin.Context) {
 
 // GetUser
 // Retrieves user details excluding sensitive information
+// Frontend: Called from UserProfile.vue component when loading profile page
 func (uc *UserController) GetUser(c *gin.Context) {
 	userId := c.Param("id")
 	user, err := uc.UserService.GetUserByID(uuid.MustParse(userId))
@@ -55,6 +59,7 @@ func (uc *UserController) GetUser(c *gin.Context) {
 
 // GetUserProfile
 // Retrieves public user profile by ID
+// Frontend: Called from UserCard.vue component when viewing other users' profiles
 func (uc *UserController) GetUserProfile(c *gin.Context) {
 	id := c.Param("id")
 	userID, err := uuid.Parse(id)
@@ -75,6 +80,7 @@ func (uc *UserController) GetUserProfile(c *gin.Context) {
 
 // DeleteUserAccount
 // Removes user account after verifying ownership
+// Frontend: Called from AccountSettings.vue component's "Delete Account" button
 func (uc *UserController) DeleteUserAccount(c *gin.Context) {
 	id := c.Param("id")
 	userID, err := uuid.Parse(id)

@@ -14,6 +14,7 @@ import (
 
 // Claims
 // Data structure for JWT token payload containing user identification
+// Frontend: Used internally by auth system, no direct component usage
 type Claims struct {
 	UserID uuid.UUID `json:"user_id"`
 	jwt.StandardClaims
@@ -21,6 +22,7 @@ type Claims struct {
 
 // GenerateJWT
 // Token generation utility that creates signed JWT tokens for users
+// Frontend: Used internally by Login and Signup functions, no direct component usage
 func generateJWT(userID uuid.UUID) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour)
 	claims := &Claims{
@@ -41,6 +43,7 @@ func generateJWT(userID uuid.UUID) (string, error) {
 
 // Login
 // Authentication endpoint that validates credentials and returns JWT
+// Frontend: Called from LoginForm.vue component's "Sign In" button on /login page
 func Login(c *gin.Context) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -70,6 +73,7 @@ func Login(c *gin.Context) {
 
 // Signup
 // Registration endpoint that creates new users and returns JWT
+// Frontend: Called from SignupForm.vue component's "Create Account" button on /signup page
 func Signup(c *gin.Context) {
 	var user models.User
 	if err := c.ShouldBindJSON(&user); err != nil {
