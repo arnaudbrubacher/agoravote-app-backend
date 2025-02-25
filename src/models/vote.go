@@ -1,8 +1,17 @@
 package models
 
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
+
 type Vote struct {
-	ID        string `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"`
-	GroupID   string `gorm:"type:uuid;not null"`
-	UserID    string `gorm:"not null"`
-	CreatedAt string `gorm:"not null"`
+	ID        int64     `json:"id" gorm:"primaryKey;autoIncrement"`
+	GroupID   uuid.UUID `json:"group_id" gorm:"type:uuid;not null"`
+	UserID    uuid.UUID `json:"user_id" gorm:"type:uuid;not null"`
+	Value     string    `json:"value" gorm:"type:text;not null"`
+	CreatedAt time.Time `json:"created_at" gorm:"type:timestamp with time zone;not null"`
+	Group     *Group    `json:"group,omitempty" gorm:"foreignKey:GroupID"`
+	User      *User     `json:"user,omitempty" gorm:"foreignKey:UserID"`
 }

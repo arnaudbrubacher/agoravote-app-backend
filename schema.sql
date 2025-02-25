@@ -42,7 +42,7 @@ CREATE TABLE public.group_members (
     group_id uuid NOT NULL,
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
     user_id uuid NOT NULL,
-    role boolean,
+    is_admin boolean DEFAULT false NOT NULL,
     created_at timestamp with time zone NOT NULL
 );
 
@@ -59,7 +59,9 @@ CREATE TABLE public.groups (
     description text,
     picture text,
     is_private boolean NOT NULL,
-    last_active text NOT NULL
+    last_active timestamp with time zone NOT NULL,
+    created_at timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone DEFAULT now()
 );
 
 
@@ -74,7 +76,8 @@ CREATE TABLE public.posts (
     group_id uuid NOT NULL,
     user_id uuid NOT NULL,
     content text NOT NULL,
-    created_at timestamp with time zone NOT NULL
+    created_at timestamp with time zone NOT NULL,
+    title character varying(255) DEFAULT ''::character varying NOT NULL
 );
 
 
@@ -102,13 +105,25 @@ ALTER SEQUENCE public.posts_id_seq OWNED BY public.posts.id;
 
 
 --
+-- Name: schema_migrations; Type: TABLE; Schema: public; Owner: agoravotedb
+--
+
+CREATE TABLE public.schema_migrations (
+    version bigint NOT NULL,
+    dirty boolean NOT NULL
+);
+
+
+ALTER TABLE public.schema_migrations OWNER TO agoravotedb;
+
+--
 -- Name: users; Type: TABLE; Schema: public; Owner: agoravotedb
 --
 
 CREATE TABLE public.users (
     id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
-    name text,
-    email text,
+    name text NOT NULL,
+    email text NOT NULL,
     password text
 );
 
@@ -123,7 +138,7 @@ CREATE TABLE public.votes (
     id bigint NOT NULL,
     group_id uuid NOT NULL,
     user_id uuid NOT NULL,
-    value text,
+    value text NOT NULL,
     created_at timestamp with time zone NOT NULL
 );
 
@@ -174,6 +189,14 @@ ALTER TABLE ONLY public.group_members
 
 
 --
+-- Name: group_members group_members_unique_membership; Type: CONSTRAINT; Schema: public; Owner: agoravotedb
+--
+
+ALTER TABLE ONLY public.group_members
+    ADD CONSTRAINT group_members_unique_membership UNIQUE (group_id, user_id);
+
+
+--
 -- Name: groups groups_id_unique; Type: CONSTRAINT; Schema: public; Owner: agoravotedb
 --
 
@@ -195,6 +218,14 @@ ALTER TABLE ONLY public.groups
 
 ALTER TABLE ONLY public.posts
     ADD CONSTRAINT posts_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: schema_migrations schema_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: agoravotedb
+--
+
+ALTER TABLE ONLY public.schema_migrations
+    ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
 
 
 --
